@@ -17,6 +17,7 @@ pygame.mixer.music.load('tempting_fate.mp3')
 pygame.mixer.music.set_volume(0.1)
 
 sound = pygame.mixer.Sound('shimmer_1.ogg')
+
 #This module is responsible for sprite movement. 
 def move_items(display_surface, virus_sprites, player_sprites, mask_sprites, soap_sprites, soap_timer, direction, timer):
     for virus in virus_sprites:
