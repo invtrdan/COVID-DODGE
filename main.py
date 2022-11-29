@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, time, requests, json
 from pygame import *
 from pygame.locals import QUIT
 from config import *
@@ -7,23 +7,23 @@ from virusx import Virusx
 from virusy import Virusy
 from mask import Mask
 from soap import Soap
-import time
 
-import requests
-import json
-
+#########################################
+#               Play Game               #
+#########################################
 BASE_URL = "https://covid-dodge-server.invtrdan.repl.co"
 
 def play_game(username):
   pygame.init()
   pygame.mixer.init()
   
-  #Music is loaded and the volume is set.
   pygame.mixer.music.load('tempting_fate.mp3')
   pygame.mixer.music.set_volume(0.1)
   sound = pygame.mixer.Sound('shimmer_1.ogg')
   
-  #This function is responsible for sprite movement. 
+  #########################################
+  #            Sprite Movement            #
+  #########################################
   def move_items(display_surface, virus_sprites, player_sprites, mask_sprites, soap_sprites, soap_timer, direction, timer):
       for virus in virus_sprites:
           virus_sprites.remove(virus)
@@ -53,7 +53,9 @@ def play_game(username):
           soap.update(display_surface)
       return direction, mask_sprites, soap_sprites, soap_timer
   
-  #This function is responsible for creating the player displayed
+  #########################################
+  #                Player                 #
+  #########################################
   def player_create():
       player = Player( CENTERX, CENTERY)
       player_sprites = pygame.sprite.Group()
@@ -61,7 +63,9 @@ def play_game(username):
       direction = 'right'
       return player_sprites, direction
   
-  #This function is responsible for the masks
+  #########################################
+  #                 Masks                 #
+  #########################################           
   def mask_create():
       mask_img = pygame.image.load('mask.png')
       sound = pygame.mixer.Sound('shimmer_1.ogg')
@@ -71,7 +75,9 @@ def play_game(username):
       mask_sprites.add(mask)
       return mask_sprites
   
-  #This function is responsible for the soal
+  #########################################
+  #                 Soap                  #
+  #########################################
   def soap_create():
       soap_img = pygame.image.load('soap.png')
       soap_img = pygame.transform.scale(soap_img, (40, 40))
@@ -82,7 +88,9 @@ def play_game(username):
       soap_sprites.add(soap)
       return soap_sprites
   
-  #This function is responsible for the virus
+  #########################################
+  #                 Virus                 #
+  #########################################
   def virus_create(display_surface, num, timer = 0):
       virus_img = pygame.image.load('Blue_Virus.png')
       virus_img = pygame.transform.scale(virus_img, (36, 36))
@@ -96,7 +104,9 @@ def play_game(username):
           virus.spawn(display_surface, timer)
       return virus_sprites
   
-  #This function is responsible for the game score.
+  #########################################
+  #                 Score                 #
+  #########################################
   def score_create(score = 0):
       text = font.render('Score =' + str(score), True, BLUE)  
       text_rect = text.get_rect()
@@ -109,13 +119,17 @@ def play_game(username):
       restart_text_rect.center = (CENTERX, CENTERY + 30)
       return text, text_rect, go_text, go_text_rect,  restart_text, restart_text_rect
   
-  #This function is responsible for updating the player's score
+  #########################################
+  #             Update Score              #
+  #########################################
   def update_score(text, go_text, score):
       text = font.render('Score = ' + str(score), True, BLUE)
       go_text = go_font.render('Game Over! Score = ' + str(score) , True, BLUE)
       return text, go_text
   
-  #This function is responsible for detecting collisions between the plaer and the virus.
+  #########################################
+  #          Collision Detection          #
+  #########################################
   def detect_virus_player_collisions(virus_sprites, player_sprites, invincible):
       results = {}
       if invincible == False:
@@ -126,8 +140,7 @@ def play_game(username):
           return results
       else:
           return results
-        
-  #This function is responsible for detecting collisions between the mask and the player.    
+          
   def detect_mask_player_collisions(mask_sprites, player_sprites):
       results = {}
       for mask in mask_sprites:
@@ -136,7 +149,6 @@ def play_game(username):
                   results[mask] = player
       return results
     
-  #This function is responsible for detecting collisions between the soap and the player.
   def detect_soap_player_collisions(soap_sprites, player_sprites):
       results = {}
       for soap in soap_sprites:
@@ -145,12 +157,11 @@ def play_game(username):
                   results[soap] = player
       return results
   
-  #This function is responsible for removing virus and player items after collision
   def remove_collided_items(collision_dictionary, virus_sprites, player_sprites, mask_sprites, lives, invincible):
       if lives == 0:
           for mask in mask_sprites:
               mask_sprites.remove(mask)
-          for virus, player in collision_dictionary.items(): # Iterates over the dictionary getting keys and corresponding values
+          for virus, player in collision_dictionary.items(): 
               virus_sprites.remove(virus)
               player_sprites.remove(player)
               pygame.mixer.music.stop()
@@ -162,30 +173,32 @@ def play_game(username):
           get_hit.play()
       return 1, lives, invincible
   
-  #This function is responsible for removing the soa[ from the screen after collision]
   def remove_collided_soap(collision_dictionary, soap_sprites, player_sprites, lives):
-      for soap, player in collision_dictionary.items(): # Iterates over the dictionary getting keys and corresponding values
+      for soap, player in collision_dictionary.items(): 
           soap.sound.play()
           soap_sprites.remove(soap)
           lives += 1
       return lives
   
-  #This function is responsible for removing the mask after collision
   def remove_collided_mask(collision_dictionary, mask_sprites, player_sprites, score):
-      for mask, player in collision_dictionary.items(): # Iterates over the dictionary getting keys and corresponding values
+      for mask, player in collision_dictionary.items(): 
           mask.sound.play()
           mask_sprites.remove(mask)
           score += 5
       return score
-  
-  #This function is responsible for displaying the number of lives (hearts) remaining.
+
+  #########################################
+  #                 Lives                 #
+  #########################################
   def display_lives(lives, display_surface, heart):
       x_value = 15
       for i in range(lives + 1):
           display_surface.blit(heart, [x_value, 15])
           x_value += 35
   
-  #This function allows for the player to be invincible for a period of time if the timer < 30
+  #########################################
+  #             Invincibility             #
+  #########################################
   def is_invincible(invincible, i_timer):
       if i_timer < 30 and invincible == True:
           invincible = True
@@ -197,23 +210,23 @@ def play_game(username):
       
   pygame.init()
   DISPLAYSURF = pygame.display.set_mode(size, pygame.FULLSCREEN)
-  pygame.display.set_caption('Flatten The Curve') #title of game at the top of game window
+  pygame.display.set_caption('Flatten The Curve') 
   virus_img = pygame.image.load('Blue_Virus.png')
   virus_img = pygame.transform.scale(virus_img, (32, 32))
-  pygame.display.set_icon(virus_img) #changes the icon of the game
+  pygame.display.set_icon(virus_img) 
   num = 4
-  player_list, direction = player_create() #Player create function
+  player_list, direction = player_create()
   virus_list = virus_create(DISPLAYSURF, num)
   mask_sprites = pygame.sprite.Group()
   soap_sprites = pygame.sprite.Group()
   timer = 0
-  font = pygame.font.Font('freesansbold.ttf', 30) #Font design and size
+  font = pygame.font.Font('freesansbold.ttf', 30) 
   go_font = pygame.font.Font('freesansbold.ttf', 32)
   score = 0
   lives = 2
-  GAME_OVER = pygame.mixer.Sound('GameOver.ogg') #Sound is played when the game is lost/ over
-  GAME_OVER.set_volume(0.015) #The volume of the game is set
-  game_state = 0 #The game satate is initialized
+  GAME_OVER = pygame.mixer.Sound('GameOver.ogg') 
+  GAME_OVER.set_volume(0.015) 
+  game_state = 0 
   text, text_rect, go_text, go_text_rect, restart_text, restart_text_rect = score_create()
   animation_increment=10
   clock_tick_rate=20
@@ -226,14 +239,14 @@ def play_game(username):
   heart_img = pygame.transform.scale(heart_img, (30, 30))
   soap_timer = 0
   clock = pygame.time.Clock()
-  background_image = pygame.image.load("road.png") #background image
+  background_image = pygame.image.load("road.png") 
   background_image = pygame.transform.scale(background_image, (WINDOW_WIDTH, WINDOW_HEIGHT))
   
-  start_screen = pygame.image.load("start_screen.jpeg") #start screen image
+  start_screen = pygame.image.load("start_screen.jpeg") 
   start_screen = pygame.transform.scale(start_screen, (WINDOW_WIDTH, WINDOW_HEIGHT))
   
   while game_state == 0:
-      keys = pygame.key.get_pressed() #gets input from the keyboard
+      keys = pygame.key.get_pressed() 
       DISPLAYSURF.blit(start_screen, [0, 0])
       for event in pygame.event.get(): 
           if event.type == QUIT or keys[K_ESCAPE]: 
@@ -247,10 +260,8 @@ def play_game(username):
       clock.tick(FPS)        
               
   while game_state:
-   
       timer += 1
-      
-      keys = pygame.key.get_pressed() #gets keyboard input
+      keys = pygame.key.get_pressed() 
       for event in pygame.event.get(): 
           if event.type == QUIT or keys[K_ESCAPE]: 
               pygame.quit()
@@ -269,39 +280,39 @@ def play_game(username):
               pygame.mixer.music.play(loops = -1)
               mask_sprites = pygame.sprite.Group()
    
-      #Movement depending on keyboad input
+      #########################################
+      #            Sprite Movement            #
+      #########################################
       if keys[K_RIGHT]:
           offset_x -= offset
   
       if keys[K_LEFT]:
           offset_x += offset
   
-      #Display window  
+      #########################################
+      #                Display                #
+      #########################################
       rel_x = offset_x % WINDOW_WIDTH
       DISPLAYSURF.blit(background_image,[rel_x - WINDOW_WIDTH, 0])
       if rel_x < WINDOW_WIDTH:
           DISPLAYSURF.blit(background_image, [rel_x, 0])
-      
       DISPLAYSURF.blit(text, text_rect)
   
-      display_lives(lives, DISPLAYSURF, heart_img) #display lives function is called to display remaining lives
-      invincible, i_timer = is_invincible(invincible, i_timer) #invinciple, i_timer is passed to the is_invincible function to determine whether or not the player is invincible.
+      display_lives(lives, DISPLAYSURF, heart_img) 
+      invincible, i_timer = is_invincible(invincible, i_timer) 
        
       direction, mask_sprites, soap_sprites, soap_timer = move_items(DISPLAYSURF, virus_list, player_list, mask_sprites, soap_sprites, soap_timer, direction, timer)
           
       vp_collision_dictionary = detect_virus_player_collisions(virus_list, player_list, invincible)
       mp_collision_dictionary = detect_mask_player_collisions(mask_sprites, player_list)
       sp_collision_dictionary = detect_mask_player_collisions(soap_sprites, player_list)
-      
-      #Colided items are removed    
+          
       if vp_collision_dictionary:
           game_state, lives, invincible = remove_collided_items(vp_collision_dictionary, virus_list, player_list, mask_sprites, lives, invincible)
       
-      #function called to remove maks after collision
       if mp_collision_dictionary:
           score = remove_collided_mask(mp_collision_dictionary, mask_sprites, player_list, score)
       
-      #Function cslled to remove soap after collision
       if sp_collision_dictionary:
           lives = remove_collided_soap(sp_collision_dictionary, soap_sprites, player_list, lives)
               
@@ -314,7 +325,9 @@ def play_game(username):
       #         virus_list = virus_create(DISPLAYSURF, num, timer)
       #     score += 1
         
-      #Restart option    
+      #########################################
+      #                Restart                #
+      #########################################    
       if game_state == 2:
         DISPLAYSURF.blit(go_text, go_text_rect)
         DISPLAYSURF.blit(restart_text, restart_text_rect)
@@ -325,19 +338,16 @@ def play_game(username):
             "score":score
           }
           requests.post(BASE_URL + "/update_leaderboard", json=data)
-          
-    
-        
-          
+        start_game()
       
       pygame.display.update()
       clock.tick(FPS) 
 
+def start_game():
+  play_game(username)
 
 username = input("Enter Username: ")
-score = play_game(username)
-print("Your score: ", score)
-
+start_game()
 
 
 
