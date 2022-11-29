@@ -244,6 +244,9 @@ def play_game(username):
   
   start_screen = pygame.image.load("start_screen.jpeg") 
   start_screen = pygame.transform.scale(start_screen, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+  end_screen = pygame.image.load("game_over.jpeg") 
+  end_screen = pygame.transform.scale(end_screen, (WINDOW_WIDTH, WINDOW_HEIGHT))
   
   while game_state == 0:
       keys = pygame.key.get_pressed() 
@@ -331,22 +334,22 @@ def play_game(username):
       if game_state == 2:
         DISPLAYSURF.blit(go_text, go_text_rect)
         DISPLAYSURF.blit(restart_text, restart_text_rect)
-        yn = input("Whould you like to submit your score? (y/n): ")
-        if yn == "Y" or yn == "y":
-          data = {
-            "username":username,
-            "score":score
-          }
-          requests.post(BASE_URL + "/update_leaderboard", json=data)
+
+        data = {
+          "username":username,
+          "score":score
+        }
+        requests.post(BASE_URL + "/update_leaderboard", json=data)
+        
         start_game()
       
       pygame.display.update()
       clock.tick(FPS) 
 
 def start_game():
+  username = "Danielle"
   play_game(username)
 
-username = input("Enter Username: ")
 start_game()
 
 
