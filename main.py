@@ -14,13 +14,6 @@ from soap import Soap
 BASE_URL = "https://covid-dodge-server.invtrdan.repl.co"
 
 def play_game(username):
-  pygame.init()
-  pygame.mixer.init()
-  
-  pygame.mixer.music.load('tempting_fate.mp3')
-  pygame.mixer.music.set_volume(0.1)
-  sound = pygame.mixer.Sound('shimmer_1.ogg')
-  
   #########################################
   #            Sprite Movement            #
   #########################################
@@ -57,7 +50,7 @@ def play_game(username):
   #                Player                 #
   #########################################
   def player_create():
-      player = Player( CENTERX, CENTERY)
+      player = Player(CENTERX, CENTERY)
       player_sprites = pygame.sprite.Group()
       player_sprites.add(player)
       direction = 'right'
@@ -207,8 +200,12 @@ def play_game(username):
           invincible = False
           i_timer = 0
       return invincible, i_timer
-      
+
   pygame.init()
+  pygame.mixer.init()
+  pygame.mixer.music.load('tempting_fate.mp3')
+  pygame.mixer.music.set_volume(0.1)
+  sound = pygame.mixer.Sound('shimmer_1.ogg')
   DISPLAYSURF = pygame.display.set_mode(size, pygame.FULLSCREEN)
   pygame.display.set_caption('Flatten The Curve') 
   virus_img = pygame.image.load('Blue_Virus.png')
@@ -255,7 +252,7 @@ def play_game(username):
           if event.type == QUIT or keys[K_ESCAPE]: 
               pygame.quit()
               sys.exit() 
-          if event.type == pygame.KEYDOWN and not keys[K_ESCAPE] : 
+          if event.type == pygame.KEYDOWN and not keys[K_ESCAPE]: 
               game_state = 1
               pygame.mixer.music.play(loops = -1)
   
@@ -332,25 +329,24 @@ def play_game(username):
       #                Restart                #
       #########################################    
       if game_state == 2:
-        DISPLAYSURF.blit(go_text, go_text_rect)
-        DISPLAYSURF.blit(restart_text, restart_text_rect)
-
+        # DISPLAYSURF.blit(go_text, go_text_rect)
+        # DISPLAYSURF.blit(restart_text, restart_text_rect)
         data = {
           "username":username,
           "score":score
         }
         requests.post(BASE_URL + "/update_leaderboard", json=data)
+
+        end_screen = pygame.image.load("game_over.jpeg") 
+        end_screen = pygame.transform.scale(end_screen, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        DISPLAYSURF.blit(end_screen, [0, 0])
         
-        start_game()
       
       pygame.display.update()
       clock.tick(FPS) 
 
-def start_game():
-  username = "Danielle"
-  play_game(username)
-
-start_game()
+username = "test"
+play_game(username)
 
 
 
