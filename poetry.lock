@@ -1,4 +1,12 @@
 [[package]]
+name = "alien-invasion1"
+version = "1.0.0"
+description = "这是我第一阶段的项目"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "asgiref"
 version = "3.5.2"
 description = "ASGI specs, helper code, and adapters"
@@ -459,9 +467,10 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.0,<3.9"
-content-hash = "aff97c89916348d0d5fd8bf8a975a301869ad115f57069bf4773521241630394"
+content-hash = "012623db2104fee79cb971efb9fa1710aab7bc15483fe954cf25556ac49b8848"
 
 [metadata.files]
+alien-invasion1 = []
 asgiref = []
 "backports.zoneinfo" = []
 certifi = []

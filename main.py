@@ -1,5 +1,7 @@
-import pygame, sys, time, requests, json
+import pygame, sys, requests
 from pygame import *
+from flask import *
+from button import Button
 from pygame.locals import QUIT
 from config import *
 from player import Player
@@ -8,10 +10,8 @@ from virusy import Virusy
 from mask import Mask
 from soap import Soap
 
-#########################################
-#               Play Game               #
-#########################################
 BASE_URL = "https://covid-dodge-server.invtrdan.repl.co"
+
 
 def play_game(username):
   #########################################
@@ -200,13 +200,13 @@ def play_game(username):
           invincible = False
           i_timer = 0
       return invincible, i_timer
-
-  pygame.init()
+  
+  pygame.init()  
   pygame.mixer.init()
+  DISPLAYSURF = pygame.display.set_mode(size, pygame.FULLSCREEN)
   pygame.mixer.music.load('tempting_fate.mp3')
   pygame.mixer.music.set_volume(0.1)
   sound = pygame.mixer.Sound('shimmer_1.ogg')
-  DISPLAYSURF = pygame.display.set_mode(size, pygame.FULLSCREEN)
   pygame.display.set_caption('Flatten The Curve') 
   virus_img = pygame.image.load('Blue_Virus.png')
   virus_img = pygame.transform.scale(virus_img, (32, 32))
@@ -324,7 +324,7 @@ def play_game(username):
       #         num += 1
       #         virus_list = virus_create(DISPLAYSURF, num, timer)
       #     score += 1
-        
+
       #########################################
       #                Restart                #
       #########################################    
@@ -340,12 +340,15 @@ def play_game(username):
         end_screen = pygame.image.load("game_over.jpeg") 
         end_screen = pygame.transform.scale(end_screen, (WINDOW_WIDTH, WINDOW_HEIGHT))
         DISPLAYSURF.blit(end_screen, [0, 0])
-        
+      
       
       pygame.display.update()
       clock.tick(FPS) 
 
-username = "test"
+#########################################
+#                 LogIn                 #
+#########################################
+username = input("Enter Username: ")
 play_game(username)
 
 
