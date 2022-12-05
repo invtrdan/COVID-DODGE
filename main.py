@@ -85,7 +85,7 @@ def play_game(username):
   #                 Virus                 #
   #########################################
   def virus_create(display_surface, num, timer = 0):
-      virus_img = pygame.image.load('Blue_Virus.png')
+      virus_img = pygame.image.load('blue_virus.png')
       virus_img = pygame.transform.scale(virus_img, (36, 36))
       virus_sprites = pygame.sprite.Group()
       for i in range(num):
@@ -208,7 +208,7 @@ def play_game(username):
   pygame.mixer.music.set_volume(0.1)
   sound = pygame.mixer.Sound('shimmer_1.ogg')
   pygame.display.set_caption('Flatten The Curve') 
-  virus_img = pygame.image.load('Blue_Virus.png')
+  virus_img = pygame.image.load('blue_virus.png')
   virus_img = pygame.transform.scale(virus_img, (32, 32))
   pygame.display.set_icon(virus_img) 
   num = 4
@@ -221,7 +221,7 @@ def play_game(username):
   go_font = pygame.font.Font('freesansbold.ttf', 32)
   score = 0
   lives = 2
-  GAME_OVER = pygame.mixer.Sound('GameOver.ogg') 
+  GAME_OVER = pygame.mixer.Sound('game_over.ogg') 
   GAME_OVER.set_volume(0.015) 
   game_state = 0 
   text, text_rect, go_text, go_text_rect, restart_text, restart_text_rect = score_create()
@@ -232,7 +232,7 @@ def play_game(username):
   offset_x = 0
   get_hit = pygame.mixer.Sound('get_hit.ogg')
   get_hit.set_volume(0.15)
-  heart_img = pygame.image.load('Heart.png')
+  heart_img = pygame.image.load('heart.png')
   heart_img = pygame.transform.scale(heart_img, (30, 30))
   soap_timer = 0
   clock = pygame.time.Clock()
